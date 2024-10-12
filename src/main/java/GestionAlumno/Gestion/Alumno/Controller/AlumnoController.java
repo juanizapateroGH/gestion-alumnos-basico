@@ -1,12 +1,15 @@
 package GestionAlumno.Gestion.Alumno.Controller;
 
 import GestionAlumno.Gestion.Alumno.Domain.Alumno;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@CrossOrigin(origins = "http://127.0.0.1:5500")
 @RestController
 @RequestMapping("/alumno")
 public class AlumnoController {
@@ -23,8 +26,8 @@ public class AlumnoController {
      * @return alumnos
      */
     @GetMapping
-    public List <Alumno> getAlumnos(){
-        return alumnos;
+    public ResponseEntity<List <Alumno>> getAlumnos(){
+        return ResponseEntity.ok(alumnos);
     }
 
     /**
@@ -33,13 +36,13 @@ public class AlumnoController {
     @return Alumno
      */
     @GetMapping("/{email}")
-    public Alumno getAlumnoPorEmail(@PathVariable String email){
+    public ResponseEntity<?> getAlumnoPorEmail(@PathVariable String email){
         for (Alumno a : alumnos){
             if (a.getEmail().equalsIgnoreCase(email)){
-                return a;
+                return ResponseEntity.ok(alumnos);
             }
         }
-        return null;
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado Emaiil: "+email);
     }
 
     /**
@@ -48,9 +51,9 @@ public class AlumnoController {
      * @return El alumno nuevo
      */
     @PostMapping
-    public Alumno postAlumno(@RequestBody Alumno alumno){
+    public ResponseEntity<?> postAlumno(@RequestBody Alumno alumno){
         alumnos.add(alumno);
-        return alumno;
+        return ResponseEntity.status(HttpStatus.CREATED).body("Alumno creado, Nombre: "+alumno.getNombre());
     }
 
     /**
@@ -59,15 +62,15 @@ public class AlumnoController {
      * @return Alumno Actualizado
      */
     @PutMapping
-    public Alumno putAlumno(@RequestBody Alumno alumno){
+    public ResponseEntity<?> putAlumno(@RequestBody Alumno alumno){
         for(Alumno a : alumnos){
             a.setNombre(alumno.getNombre());
             a.setEdad(alumno.getEdad());
             a.setCurso(a.getCurso());
             a.setEmail(alumno.getEmail());
-            return a;
+            return ResponseEntity.ok("Usuario modificado existosamente ID: "+alumno.getId());
         }
-        return null;
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");
     }
 
     /**
@@ -76,7 +79,7 @@ public class AlumnoController {
      * @return Alumno actualizado
      */
     @PatchMapping
-    public Alumno patchAlumno(Alumno alumno){
+    public ResponseEntity<?> patchAlumno(Alumno alumno){
         for (Alumno a : alumnos){
             if (a.getId() == alumno.getId()){
                 if(a.getNombre() != null){
@@ -91,10 +94,10 @@ public class AlumnoController {
                 if (a.getCurso() != null){
                     a.setCurso(alumno.getCurso());
                 }
-                return a;
+                return ResponseEntity.ok("Alumno modificado exitosamente ID: "+a.getId());
             }
         }
-        return null;
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");
     }
 
     /**
@@ -103,13 +106,13 @@ public class AlumnoController {
      * @return alumno removido
      */
     @DeleteMapping("/{id}")
-    public Alumno deleteAlumno (@PathVariable int id){
+    public ResponseEntity<?> deleteAlumno (@PathVariable int id){
         for (Alumno a : alumnos){
             if (a.getId() == id){
                 alumnos.remove(a);
-                return a;
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Usuario eliminado correctamente ID: "+id);
             }
         }
-        return null;
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado con el ID: "+id);
     }
 }
